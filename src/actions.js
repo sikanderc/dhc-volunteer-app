@@ -16,6 +16,13 @@ import {
   CONFIRM_LOGIN_FAILURE
 } from './reducers/auth'
 
+import {
+  LOG,
+  LOG_SUCCESS,
+  LOG_FAILURE,
+  CANCEL_LOG
+} from './reducers/hourLedger'
+
 import { Alert } from 'react-native'
 import { Auth } from 'aws-amplify'
 
@@ -65,7 +72,7 @@ export function createUser(username, password, email, phone_number) {
     .catch(err => {
       console.log('error signing up: ', err)
       dispatch(signUpFailure(err))
-    });
+    })
   }
 }
 
@@ -104,9 +111,9 @@ export function authenticate(username, password) {
         dispatch(showSignInConfirmationModal())
       })
       .catch(err => {
-        console.log('errror from signIn: ', err)
+        console.log('error from signIn: ', err)
         dispatch(logInFailure(err))
-      });
+      })
   }
 }
 
@@ -173,7 +180,7 @@ export function confirmUserSignUp(username, authCode) {
       .catch(err => {
         console.log('error signing up: ', err)
         dispatch(confirmSignUpFailure(err))
-      });
+      })
   }
 }
 
@@ -193,5 +200,45 @@ function confirmSignUpFailure(error) {
   return {
     type: CONFIRM_SIGNUP_FAILURE,
     error
+  }
+}
+
+function log() {
+  return {
+    type: LOG
+  }
+}
+
+function logSuccess(hourLog) {
+  return {
+    type: LOG_SUCCESS,
+    hourLog: hourLog
+  }
+}
+
+function logFailure(err) {
+  return {
+    type: LOG_FAILURE,
+    error: err
+  }
+}
+
+export function loggingHours(datePicked, startTime, endTime, eventName, description, hours) {
+  return (dispatch) => {
+    dispatch(log())
+    // ***Auth.signIn***(datePicked, startTime, endTime, eventName, description, hours)
+      .then(hourLog => {
+        dispatch(logSuccess(hourLog))
+      })
+      .catch(err => {
+        console.log('error from loggingHours: ', err)
+        dispatch(logFailure(err))
+      })
+  }
+}
+
+export function cancelLog() {
+  return {
+    type: CANCEL_LOG
   }
 }

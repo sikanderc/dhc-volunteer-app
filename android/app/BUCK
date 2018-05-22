@@ -45,12 +45,12 @@ android_library(
 
 android_build_config(
     name = "build_config",
-    package = "com.rnamplifyexample",
+    package = "com.dhc",
 )
 
 android_resource(
     name = "res",
-    package = "com.rnamplifyexample",
+    package = "com.dhc",
     res = "src/main/res",
 )
 

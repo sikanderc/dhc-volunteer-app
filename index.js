@@ -21,4 +21,4 @@ const ReduxApp = () => (
   </Provider>
 )
 
-AppRegistry.registerComponent('RNAmplifyExample', () => ReduxApp);
+AppRegistry.registerComponent('DHC', () => ReduxApp);

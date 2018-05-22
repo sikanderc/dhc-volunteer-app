@@ -26,7 +26,7 @@ class SignIn extends Component<{}> {
     password: '',
     accessCode: ''
   }
-  
+
   onChangeText = (key, value) => {
     this.setState({
       [key]: value
@@ -42,7 +42,7 @@ class SignIn extends Component<{}> {
     const { authCode } = this.state
     this.props.dispatchConfirmUserLogin(authCode)
   }
-  
+
   render() {
     const { fontsLoaded } = this.state
     const { auth: {
@@ -55,7 +55,7 @@ class SignIn extends Component<{}> {
       <View style={styles.container}>
         <View style={styles.heading}>
           <Image
-            source={require('../assets/shape.png')}
+            source={require('../assets/DHC-wordmark-blue.png')}
             style={styles.headingImage}
             resizeMode="contain"
           />
@@ -86,7 +86,7 @@ class SignIn extends Component<{}> {
           isLoading={isAuthenticating}
           title='Sign In'
           onPress={this.signIn.bind(this)}
-        />      
+        />
         <Text style={[styles.errorMessage, signInError && { color: 'black' }]}>Error logging in. Please try again.</Text>
         <Text style={[styles.errorMessage, signInError && { color: 'black' }]}>{signInErrorMessage}</Text>
         {
@@ -136,8 +136,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   },
   headingImage: {
-    width: 38,
-    height: 38
+    width: 120,
+    height: 50
   },
   errorMessage: {
     fontSize: 12,

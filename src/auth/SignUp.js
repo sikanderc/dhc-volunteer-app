@@ -65,7 +65,7 @@ class SignUp extends Component<{}> {
       <View style={styles.container}>
         <View style={styles.heading}>
           <Image
-            source={require('../assets/shape.png')}
+            source={require('../assets/DHC-wordmark-blue.png')}
             style={styles.headingImage}
             resizeMode="contain"
           />
@@ -177,8 +177,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   },
   headingImage: {
-    width: 38,
-    height: 38
+    width: 120,
+    height: 50
   },
   errorMessage: {
     fontFamily: fonts.base,
