@@ -24,7 +24,8 @@ import {
 } from './reducers/hourLedger'
 
 import { Alert } from 'react-native'
-import { Auth } from 'aws-amplify'
+import { Auth, API, Storage } from 'aws-amplify'
+
 
 function signUp() {
   return {
@@ -209,6 +210,29 @@ function log() {
   }
 }
 
+export function confirmLog() {
+  return (dispatch, getState) => {
+    dispatch(getLogs())
+    const { hourLog: hourLog} = getState()
+    console.log('state: ', getState())
+      .then(data => {
+        console.log('data from confirmLogin: ', data)
+        dispatch(logSuccess(data))
+      })
+      .catch(err => {
+        console.log('error signing in: ', err)
+        dispatch(logFailure(err))
+      })
+  }
+}
+
+getLogs = async () => {
+  const path = "/HourLoggers"; // you can specify the path
+  const apiResponse = await API.get("HourLoggersCRUD" , path); //replace the API name
+  console.log('response:' + apiResponse);
+  this.setState({ apiResponse });
+}
+
 function logSuccess(hourLog) {
   return {
     type: LOG_SUCCESS,
@@ -223,12 +247,17 @@ function logFailure(err) {
   }
 }
 
-export function loggingHours(datePicked, startTime, endTime, eventName, description, hours) {
+apiSaveHours = async (user, hourLogId, datePicked, startTime, endTime, eventName, description, hours) => {
+  return await API.post('HourLoggersCRUD', '/HourLoggers', {body: {user: user, hourLogId: hourLogId, datePicked: datePicked, startTime: startTime, endTime: endTime, eventName: eventName, description: description, hours: hours, approved: false}})
+}
+
+export function loggingHours(user, hourLogId, datePicked, startTime, endTime, eventName, description, hours) {
   return (dispatch) => {
     dispatch(log())
-    // ***Auth.signIn***(datePicked, startTime, endTime, eventName, description, hours)
+    this.apiSaveHours(user, hourLogId, datePicked, startTime, endTime, eventName, description, hours)
       .then(hourLog => {
         dispatch(logSuccess(hourLog))
+        console.log('major success', hourLog);
       })
       .catch(err => {
         console.log('error from loggingHours: ', err)

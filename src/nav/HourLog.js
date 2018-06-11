@@ -6,25 +6,34 @@ import Input from '../components/Input'
 import moment from 'moment'
 import { connect } from 'react-redux'
 import { loggingHours } from '../actions'
+import { API, Storage, Auth } from 'aws-amplify'
+import awsmobile from '../../aws-exports'
+import uniqueId from 'react-native-unique-id'
 
 class HourLog extends Component {
   state = {
     isDatePickerVisible: false,
     isStartTimePickerVisible: false,
     isEndTimePickerVisible: false,
-    datePicked: '',
-    startTime: '',
-    endTime: '',
-    eventName: '',
-    description: '',
-    hours: ''
+    hourLog: {
+      user: Auth.user.username,
+      hourLogId: 0,
+      datePicked: '',
+      startTime: '',
+      endTime: '',
+      eventName: '',
+      description: '',
+      hours: ''
+    }
   }
 
   onChangeText = (key, value) => {
-    this.setState({
-      [key]: value
-    })
-    console.log(this.state);
+    this.setState((state) => ({
+      hourLog: {
+        ...state.hourLog,
+        [key]: value,
+      }
+    }))
   }
 
   _showDatePicker = () => this.setState({ isDatePickerVisible: true })
@@ -33,9 +42,12 @@ class HourLog extends Component {
 
   _handleDatePicked = (date) => {
     console.log('A date has been picked: ', date)
-    this.setState({
-      datePicked: moment(date).format('ddd, MMMM Do, YYYY')
-    })
+    this.setState((state) => ({
+      hourLog: {
+        ...state.hourLog,
+        datePicked: moment(date).format('ddd, MMMM Do, YYYY')
+      }
+    }))
     this._hideDatePicker()
   }
 
@@ -45,9 +57,12 @@ class HourLog extends Component {
 
   _handleStartTimePicked = (startTime) => {
     console.log('A start time has been picked: ', startTime)
-    this.setState({
-      startTime: moment(startTime).format('h:mm a')
-    })
+    this.setState((state) => ({
+      hourLog: {
+        ...state.hourLog,
+        startTime: moment(startTime).format('h:mm a')
+      }
+    }))
     this._hideStartTimePicker()
   }
 
@@ -57,26 +72,29 @@ class HourLog extends Component {
 
   _handleEndTimePicked = (endTime) => {
     console.log('A end time has been picked: ', endTime)
-    this.setState({
-      endTime: moment(endTime).format('h:mm a')
-    })
+    this.setState((state) => ({
+      hourLog: {
+        ...state.hourLog,
+        endTime: moment(endTime).format('h:mm a')
+      }
+    }))
     this._hideEndTimePicker()
   }
 
   setHours = () => {
-    let start = moment.utc(this.state.startTime, "HH:mm")
-    let end = moment.utc(this.state.endTime, "HH:mm")
+    let start = moment.utc(this.state.hourLog.startTime, "HH:mm")
+    let end = moment.utc(this.state.hourLog.endTime, "HH:mm")
     let d = moment.duration(end.diff(start))
-    this.setState({
-      hours: moment.utc(+d).format('H:mm')
-    })
+    this.state.hourLog.hours = moment.utc(+d).format('H:mm')
   }
 
-  onSubmit = () => {
+  onSubmit = async () => {
     this.setHours()
-    console.log(this.state)
-    const { datePicked, startTime, endTime, eventName, description, hours } = this.startTime
-    this.props.dispatchLoggingHours( datePicked, startTime, endTime, eventName, description, hours )
+    this.state.hourLog.hourLogId = Date.now()
+    console.log(this.state);
+    const { user, hourLogId, datePicked, startTime, endTime, eventName, description, hours } = this.state.hourLog
+    this.props.dispatchLoggingHours( user, hourLogId, datePicked, startTime, endTime, eventName, description, hours )
+    this.props.navigation.navigate('Home')
   }
 
 
@@ -96,7 +114,7 @@ class HourLog extends Component {
             placeholder="Event Name"
             type='eventName'
             onChangeText={this.onChangeText}
-            value={this.state.eventName}
+            value={this.state.hourLog.eventName}
           />
         </View>
         <TouchableOpacity onPress={this._showDatePicker}>
@@ -109,7 +127,7 @@ class HourLog extends Component {
           onConfirm={this._handleDatePicked}
           onCancel={this._hideDatePicker}
         />
-        <Text style={styles.text2}>{this.state.datePicked}</Text>
+        <Text style={styles.text2}>{this.state.hourLog.datePicked}</Text>
         <TouchableOpacity onPress={this._showStartTimePicker}>
           <View style={styles.button}>
             <Text style={styles.buttonText}>Start Time</Text>
@@ -121,7 +139,7 @@ class HourLog extends Component {
           onCancel={this._hideStartTimePicker}
           mode="time"
         />
-        <Text style={styles.text2}>{this.state.startTime}</Text>
+        <Text style={styles.text2}>{this.state.hourLog.startTime}</Text>
         <TouchableOpacity onPress={this._showEndTimePicker}>
           <View style={styles.button}>
             <Text style={styles.buttonText}>End Time</Text>
@@ -133,13 +151,13 @@ class HourLog extends Component {
           onCancel={this._hideEndTimePicker}
           mode="time"
         />
-        <Text style={styles.text2}>{this.state.endTime}</Text>
+        <Text style={styles.text2}>{this.state.hourLog.endTime}</Text>
         <View style={styles.inputContainer}>
           <Input
             placeholder="Description of Work"
             type='description'
             onChangeText={this.onChangeText}
-            value={this.state.description}
+            value={this.state.hourLog.description}
             multiline={true}
           />
         </View>
@@ -155,7 +173,7 @@ class HourLog extends Component {
 }
 
 const mapDispatchToProps = {
-  dispatchLoggingHours: (datePicked, startTime, endTime, eventName, description, hours) => loggingHours(datePicked, startTime, endTime, eventName, description, hours)
+  dispatchLoggingHours: (user, hourLogId, datePicked, startTime, endTime, eventName, description, hours) => loggingHours(user, hourLogId, datePicked, startTime, endTime, eventName, description, hours)
 }
 
 const mapStateToProps = state => ({

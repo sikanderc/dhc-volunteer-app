@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, ListView, StyleSheet, Text } from 'react-native';
+import { View, Button, StyleSheet, Text } from 'react-native';
 import Row from '../components/Row';
 import ListHeader from '../components/ListHeader';
+import { Auth, API, Storage } from 'aws-amplify'
 
 
 const styles = StyleSheet.create({
@@ -17,23 +18,30 @@ const styles = StyleSheet.create({
 });
 
 class HourList extends React.Component {
-  constructor(props) {
-    super(props);
+  state = {
+    apiResponse: null,
+    hourLogId: '',
+    userId: ''
+   };
 
-    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-    this.state = {
-      dataSource: ds.cloneWithRows(['row 1', 'row 2']),
-    };
+   apiGetHours = async () => {
+     return await API.get('HourLoggersCRUD', '/HourLoggers/:hourLogId')
+   }
+
+  async getSample() {
+    this.apiGetHours()
+    .then(apiResponse => {
+      console.log(apiResponse)
+      this.setState({ apiResponse })
+    })
   }
+
   render() {
     return (
-      <ListView
-        style={styles.container}
-        dataSource={this.state.dataSource}
-        renderRow={(data) => <Row {...data} />}
-        renderSeparator={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
-        renderHeader={() => <ListHeader />}
-      />
+      <View>
+         <Button title="Send Request" onPress={this.getSample.bind(this)} />
+         <Text>Response: {this.state.apiResponse && JSON.stringify(this.state.apiResponse)}</Text>
+      </View>
     );
   }
 }

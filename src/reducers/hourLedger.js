@@ -5,6 +5,7 @@ export const CANCEL_LOG = 'CANCEL_LOG'
 
 
 const initialState = {
+  apiResponse: null,
   isSubmitting: false,
   hourLog: {},
   logError: false,

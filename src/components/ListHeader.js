@@ -29,4 +29,4 @@ const ListHeader = (props) => (
   </View>
 );
 
-export default ListHeader;
+export default ListHeader
